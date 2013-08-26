@@ -7,7 +7,8 @@ from datetime import datetime, timedelta
 class Token(object):
 
     def __init__(self, access_token='', expires_in=0):
-        self._access_token = None
+        self.access_token = access_token
+
         self._expires_in = expires_in
 
         self._created = datetime.now()
