@@ -41,3 +41,7 @@ class TestSimpleTokenManager(TestCase):
             self.end_point,
             data={'grant_type': 'client_credentials'},
             auth=(self.client_id, self.client_secret))
+
+    def test_should_return_token_value(self):
+        self.manager._token = Token('access_token', expires_in=10)
+        self.assertEqual(self.manager.get_token(), 'access_token')

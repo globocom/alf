@@ -30,6 +30,9 @@ class SimpleTokenManager(object):
     def has_token(self):
         return self._token.is_valid()
 
+    def get_token(self):
+        return self._token.access_token
+
     def request_token(self):
         response = requests.post(
             self._token_endpoint,
