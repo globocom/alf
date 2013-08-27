@@ -52,7 +52,3 @@ class SimpleTokenManager(object):
         self._token = Token(
             token_data.get('access_token', ''),
             token_data.get('expires_in', 0))
-
-        return response
-
-

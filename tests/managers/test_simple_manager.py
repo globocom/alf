@@ -47,18 +47,7 @@ class TestSimpleTokenManager(TestCase):
         self.assertEqual(self.manager.get_token(), 'access_token')
 
     @patch('requests.post')
-    def test_should_return_token_response(self, post):
-        post.return_value.ok = True
-        post.return_value.json.return_value = {
-            'access_token': 'accesstoken',
-            'expires_in': 10,
-        }
-
-        response = self.manager.request_token()
-        self.assertEqual(response, post.return_value)
-
-    @patch('requests.post')
-    def test_should_raise_exception_for_bad_token_request(self, post):
+    def test_should_raise_token_error_for_bad_token(self, post):
         post.return_value = Mock()
         post.return_value.ok = False
         post.return_value.status_code = 500
