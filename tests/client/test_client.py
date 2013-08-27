@@ -37,6 +37,15 @@ class TestClient(TestCase):
         self.assertResourceWasRequested(
             request.call_args_list[1], access_token='new')
 
+    @patch('requests.post')
+    @patch('requests.Session.request')
+    def test_should_stop_the_request_when_token_fails(self, request, post):
+        post.return_value = Mock(status_code=500, ok=False)
+        response = self._request()
+
+        self.assertFalse(request.called)
+        self.assertEqual(response.status_code, 500)
+
     @patch('requests.Session.request')
     def assertRequestsResource(self, access_token, status_code, request):
         request.return_value = Mock(status_code=status_code)
@@ -58,9 +67,9 @@ class TestClient(TestCase):
             token_endpoint=self.end_point,
             client_id='client_id',
             client_secret='client_secret')
-        client.request('GET', self.resource_url)
+        return client.request('GET', self.resource_url)
 
-    def _fake_manager(self, Manager, has_token=True, access_token=''):
+    def _fake_manager(self, Manager, has_token=True, access_token='', status_code=200):
         if not isinstance(access_token, list):
             access_token = [access_token]
 
@@ -69,6 +78,8 @@ class TestClient(TestCase):
         manager = Mock()
         manager.has_token.return_value = has_token
         manager.get_token = access_token.pop
+        manager.request_token.return_value = Mock(
+            status_code=status_code, ok=(status_code == 200))
         Manager.return_value = manager
 
         return manager

@@ -2,8 +2,12 @@
 
 import requests
 
-from alf.managers import SimpleTokenManager
+from alf.managers import SimpleTokenManager, TokenError
 from alf.auth import BearerTokenAuth
+
+
+BAD_TOKEN = 401
+
 
 class Client(requests.Session):
 
@@ -29,11 +33,14 @@ class Client(requests.Session):
         return self._request(*args, **kwargs)
 
     def request(self, *args, **kwargs):
-        if not self._token_manager.has_token():
-            self._token_manager.request_token()
+        try:
+            if not self._token_manager.has_token():
+                self._token_manager.request_token()
 
-        response = self._request(*args, **kwargs)
-        if response.status_code != 401:
-            return response
+            response = self._request(*args, **kwargs)
+            if response.status_code != BAD_TOKEN:
+                return response
 
-        return self._retry_request(*args, **kwargs)
+            return self._retry_request(*args, **kwargs)
+        except TokenError, error:
+            return error.response
