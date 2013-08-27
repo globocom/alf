@@ -37,6 +37,16 @@ class TestClient(TestCase):
         self.assertResourceWasRequested(
             request.call_args_list[1], access_token='new')
 
+    @patch('alf.client.SimpleTokenManager')
+    @patch('requests.Session.request')
+    def test_should_not_retry_a_bad_request_if_the_token_was_refreshed(self, request, Manager):
+        request.return_value = Mock(status_code=401)
+        self._fake_manager(Manager, has_token=False)
+
+        self._request()
+
+        self.assertEqual(request.call_count, 1)
+
     @patch('requests.post')
     @patch('requests.Session.request')
     def test_should_stop_the_request_when_token_fails(self, request, post):
