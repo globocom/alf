@@ -3,7 +3,7 @@
 from mock import patch, Mock
 from unittest import TestCase
 
-from alf.managers import SimpleTokenManager, Token
+from alf.managers import SimpleTokenManager, Token, TokenError
 
 
 class TestSimpleTokenManager(TestCase):
@@ -58,11 +58,12 @@ class TestSimpleTokenManager(TestCase):
         self.assertEqual(response, post.return_value)
 
     @patch('requests.post')
-    def test_should_return_error_response_for_bad_token_request(self, post):
+    def test_should_raise_exception_for_bad_token_request(self, post):
         post.return_value = Mock()
         post.return_value.ok = False
         post.return_value.status_code = 500
 
-        response = self.manager.request_token()
-        self.assertEqual(self.manager.has_token(), False)
-        self.assertEqual(response.status_code, 500)
+        with self.assertRaises(TokenError) as context:
+            self.manager.request_token()
+
+        self.assertEqual(context.exception.response.status_code, 500)

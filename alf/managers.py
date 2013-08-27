@@ -3,6 +3,12 @@
 import requests
 from datetime import datetime, timedelta
 
+class TokenError(Exception):
+
+    def __init__(self, message, response):
+        super(TokenError, self).__init__(message)
+        self.response = response
+
 
 class Token(object):
 
@@ -40,7 +46,7 @@ class SimpleTokenManager(object):
             auth=(self._client_id, self._client_secret))
 
         if not response.ok:
-            return response
+            raise TokenError('Failed to request token', response)
 
         token_data = response.json()
         self._token = Token(
