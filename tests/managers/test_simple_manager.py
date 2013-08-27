@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from mock import patch
+from mock import patch, Mock
 from unittest import TestCase
 
 from alf.managers import SimpleTokenManager, Token
@@ -45,3 +45,24 @@ class TestSimpleTokenManager(TestCase):
     def test_should_return_token_value(self):
         self.manager._token = Token('access_token', expires_in=10)
         self.assertEqual(self.manager.get_token(), 'access_token')
+
+    @patch('requests.post')
+    def test_should_return_token_response(self, post):
+        post.return_value.ok = True
+        post.return_value.json.return_value = {
+            'access_token': 'accesstoken',
+            'expires_in': 10,
+        }
+
+        response = self.manager.request_token()
+        self.assertEqual(response, post.return_value)
+
+    @patch('requests.post')
+    def test_should_return_error_response_for_bad_token_request(self, post):
+        post.return_value = Mock()
+        post.return_value.ok = False
+        post.return_value.status_code = 500
+
+        response = self.manager.request_token()
+        self.assertEqual(self.manager.has_token(), False)
+        self.assertEqual(response.status_code, 500)

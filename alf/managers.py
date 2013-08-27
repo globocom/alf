@@ -39,9 +39,14 @@ class SimpleTokenManager(object):
             data={'grant_type': 'client_credentials'},
             auth=(self._client_id, self._client_secret))
 
+        if not response.ok:
+            return response
+
         token_data = response.json()
         self._token = Token(
-            token_data['access_token'],
-            token_data['expires_in'])
+            token_data.get('access_token', ''),
+            token_data.get('expires_in', 0))
+
+        return response
 
 
