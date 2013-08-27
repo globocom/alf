@@ -3,16 +3,7 @@
 import requests
 
 from alf.managers import SimpleTokenManager
-
-
-class BearerTokenAuth(requests.auth.AuthBase):
-
-    def __init__(self, access_token):
-        self._access_token = access_token
-
-    def __call__(self, request):
-        request.headers['Authorization'] = 'Bearer {}'.format(self._access_token)
-
+from alf.auth import BearerTokenAuth
 
 class Client(requests.Session):
 
