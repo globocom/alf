@@ -11,12 +11,14 @@ BAD_TOKEN = 401
 
 class Client(requests.Session):
 
+    token_manager_class = SimpleTokenManager
+
     def __init__(self, *args, **kwargs):
         self._token_endpoint = kwargs.pop('token_endpoint')
         self._client_id = kwargs.pop('client_id')
         self._client_secret = kwargs.pop('client_secret')
 
-        self._token_manager = SimpleTokenManager(
+        self._token_manager = self.token_manager_class(
             token_endpoint=self._token_endpoint,
             client_id=self._client_id,
             client_secret=self._client_secret)
@@ -44,3 +46,8 @@ class Client(requests.Session):
             return self._fresh_request(*args, **kwargs)
         except TokenError, error:
             return error.response
+
+
+class DjangoClient(Client):
+
+    token_manager_class = DjangoTokenManager
