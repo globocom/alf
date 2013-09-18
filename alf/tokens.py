@@ -40,17 +40,3 @@ class Token(object):
 
     def _update_expires_on(self):
         self._expires_on = datetime.now() + timedelta(seconds=self.expires_in)
-
-
-class TokenDjango(Token):
-
-    @property
-    def access_token(self):
-        pass
-
-    @access_token.setter
-    def access_token(self, access_token):
-        pass
-
-    def is_valid(self):
-        pass

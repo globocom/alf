@@ -2,7 +2,7 @@
 
 import requests
 
-from alf.managers import TokenManager, TokenManagerDjango
+from alf.managers import TokenManager
 from alf.tokens import TokenError
 from alf.auth import BearerTokenAuth
 
@@ -47,8 +47,3 @@ class Client(requests.Session):
             return self._fresh_request(*args, **kwargs)
         except TokenError, error:
             return error.response
-
-
-class DjangoClient(Client):
-
-    token_manager_class = TokenManagerDjango

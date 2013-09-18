@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import requests
-from alf.tokens import Token, TokenDjango, TokenError
+from alf.tokens import Token, TokenError
 
 
 class TokenManager(object):
@@ -31,11 +31,3 @@ class TokenManager(object):
 
         self._token.access_token = token_data.get('access_token', '')
         self._token.expires_in = token_data.get('expires_in', 0)
-
-
-class TokenManagerDjango(TokenManager):
-
-    def __init__(self, *args, **kwargs):
-        super(TokenManagerDjango, self).__init__(*args, **kwargs)
-
-        self._token = TokenDjango()
