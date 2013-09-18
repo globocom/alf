@@ -27,13 +27,18 @@ class Token(object):
     def access_token(self, access_token):
         self._access_token = access_token
 
-    def is_valid(self):
-        return self._expires_on >= datetime.now()
+    @property
+    def expires_in(self):
+        return self._expires_in
 
-    def set_expires_in(self, expires_in):
+    @expires_in.setter
+    def expires_in(self, expires_in):
         self._expires_in = expires_in
 
         self._update_expires_on()
+
+    def is_valid(self):
+        return self._expires_on >= datetime.now()
 
     def _update_expires_on(self):
         self._expires_on = datetime.now() + timedelta(seconds=self._expires_in)
@@ -43,17 +48,17 @@ class DjangoCachedToken(Token):
 
     @property
     def access_token(self):
-        pass
+        return self._access_token
 
     @access_token.setter
     def access_token(self, access_token):
-        pass
+        self._access_token = access_token
 
     def is_valid(self):
-        pass
+        return super(DjangoCachedToken, self).is_valid()
 
 
-class SimpleTokenManager(object):
+class TokenManager(object):
 
     def __init__(self, token_endpoint, client_id, client_secret):
         self._token_endpoint = token_endpoint
@@ -66,7 +71,7 @@ class SimpleTokenManager(object):
         return self._token.is_valid()
 
     def get_token(self):
-        return self._token._access_token
+        return self._token.access_token
 
     def request_token(self):
         response = requests.post(
@@ -78,17 +83,14 @@ class SimpleTokenManager(object):
             raise TokenError('Failed to request token', response)
 
         token_data = response.json()
-        #self._token = Token(
-            #token_data.get('access_token', ''),
-            #token_data.get('expires_in', 0))
 
-        self._token.set_access_token(token_data.get('access_token', ''))
-        self.set_expires_in(token_data.get('expires_in', ''))
+        self._token.access_token = token_data.get('access_token', '')
+        self._token.expires_in = token_data.get('expires_in', '')
 
 
-class DjangoTokenManager(SimpleTokenManager):
+class TokenManagerDjango(TokenManager):
 
     def __init__(self, *args, **kwargs):
-        super(DjangoTokenManager, self).__init__(args, kwargs)
+        super(TokenManagerDjango, self).__init__(*args, **kwargs)
 
         self._token = DjangoCachedToken()
