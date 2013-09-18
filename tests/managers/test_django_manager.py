@@ -3,18 +3,19 @@
 from mock import patch, Mock
 from unittest import TestCase
 
-from alf.managers import TokenManager, Token, TokenError
+from alf.managers import TokenManagerDjango, Token, TokenError
 
 
-class TestSimpleTokenManager(TestCase):
+class TestTokenManagerDjango(TestCase):
 
     def setUp(self):
         self.end_point = 'http://endpoint/token'
         self.client_id = 'client_id'
         self.client_secret = 'client_secret'
 
-        self.manager = TokenManager(
-            self.end_point, self.client_id, self.client_secret)
+        self.manager = TokenManagerDjango(
+            self.end_point, self.client_id, self.client_secret
+        )
 
     def test_should_start_with_no_token(self):
         self.assertFalse(self.manager.has_token())

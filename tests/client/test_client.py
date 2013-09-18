@@ -11,19 +11,19 @@ class TestClient(TestCase):
     end_point = 'http://endpoint/token'
     resource_url = 'http://api/some/resource'
 
-    @patch('alf.client.SimpleTokenManager')
+    @patch('alf.client.TokenManager')
     def test_should_request_a_token_when_there_is_none(self, Manager):
         manager = self._fake_manager(Manager, has_token=False, access_token='new_token')
         self.assertRequestsResource('new_token', 200)
         self.assertTrue(manager.request_token.called)
 
-    @patch('alf.client.SimpleTokenManager')
+    @patch('alf.client.TokenManager')
     def test_should_not_request_a_token_when_there_is_one(self, Manager):
         manager = self._fake_manager(Manager, has_token=True)
         self.assertRequestsResource('', 200)
         self.assertFalse(manager.request_token.called)
 
-    @patch('alf.client.SimpleTokenManager')
+    @patch('alf.client.TokenManager')
     @patch('requests.Session.request')
     def test_should_refresh_token_when_the_request_fails(self, request, Manager):
         request.return_value = Mock(status_code=401)
@@ -37,7 +37,7 @@ class TestClient(TestCase):
         self.assertResourceWasRequested(
             request.call_args_list[1], access_token='new')
 
-    @patch('alf.client.SimpleTokenManager')
+    @patch('alf.client.TokenManager')
     @patch('requests.Session.request')
     def test_should_not_retry_a_bad_request_if_the_token_was_refreshed(self, request, Manager):
         request.return_value = Mock(status_code=401)

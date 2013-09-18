@@ -2,7 +2,7 @@
 
 import requests
 
-from alf.managers import SimpleTokenManager, TokenManagerDjango
+from alf.managers import TokenManager, TokenManagerDjango
 from alf.tokens import TokenError
 from alf.auth import BearerTokenAuth
 
@@ -12,7 +12,7 @@ BAD_TOKEN = 401
 
 class Client(requests.Session):
 
-    token_manager_class = SimpleTokenManager
+    token_manager_class = TokenManager
 
     def __init__(self, *args, **kwargs):
         self._token_endpoint = kwargs.pop('token_endpoint')

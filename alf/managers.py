@@ -3,7 +3,7 @@ import requests
 from alf.tokens import Token, TokenDjango, TokenError
 
 
-class SimpleTokenManager(object):
+class TokenManager(object):
 
     def __init__(self, token_endpoint, client_id, client_secret):
         self._token_endpoint = token_endpoint
@@ -16,7 +16,7 @@ class SimpleTokenManager(object):
         return self._token.is_valid()
 
     def get_token(self):
-        return self._token._access_token
+        return self._token.access_token
 
     def request_token(self):
         response = requests.post(
@@ -28,15 +28,12 @@ class SimpleTokenManager(object):
             raise TokenError('Failed to request token', response)
 
         token_data = response.json()
-        #self._token = Token(
-            #token_data.get('access_token', ''),
-            #token_data.get('expires_in', 0))
 
         self._token.access_token = token_data.get('access_token', '')
         self._token.expires_in = token_data.get('expires_in', 0)
 
 
-class TokenManagerDjango(SimpleTokenManager):
+class TokenManagerDjango(TokenManager):
 
     def __init__(self, *args, **kwargs):
         super(TokenManagerDjango, self).__init__(*args, **kwargs)
