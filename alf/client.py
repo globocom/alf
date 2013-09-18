@@ -2,7 +2,8 @@
 
 import requests
 
-from alf.managers import SimpleTokenManager, TokenError
+from alf.managers import SimpleTokenManager, TokenManagerDjango
+from alf.tokens import TokenError
 from alf.auth import BearerTokenAuth
 
 
@@ -50,4 +51,4 @@ class Client(requests.Session):
 
 class DjangoClient(Client):
 
-    token_manager_class = DjangoTokenManager
+    token_manager_class = TokenManagerDjango
