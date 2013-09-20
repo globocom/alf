@@ -31,19 +31,19 @@ class Client(requests.Session):
         kwargs['auth'] = BearerTokenAuth(access_token)
         return super(Client, self).request(*args, **kwargs)
 
-    def _fresh_request(self, *args, **kwargs):
-        self._token_manager.request_token()
-        return self._request(*args, **kwargs)
+    #def _fresh_request(self, *args, **kwargs):
+        #self._token_manager.request_token()
+        #return self._request(*args, **kwargs)
 
     def request(self, *args, **kwargs):
         try:
-            if not self._token_manager.has_token():
-                return self._fresh_request(*args, **kwargs)
+            #if not self._token_manager.has_token():
+                #return self._fresh_request(*args, **kwargs)
 
             response = self._request(*args, **kwargs)
             if response.status_code != BAD_TOKEN:
                 return response
 
-            return self._fresh_request(*args, **kwargs)
+            return self._request(*args, **kwargs)
         except TokenError, error:
             return error.response
