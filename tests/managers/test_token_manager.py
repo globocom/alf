@@ -6,7 +6,7 @@ from unittest import TestCase
 from alf.managers import TokenManager, Token, TokenError
 
 
-class TestSimpleTokenManager(TestCase):
+class TestTokenManager(TestCase):
 
     def setUp(self):
         self.end_point = 'http://endpoint/token'
@@ -27,6 +27,12 @@ class TestSimpleTokenManager(TestCase):
     def test_should_respect_valid_token(self):
         self.manager._token = Token('', expires_in=10)
         self.assertTrue(self.manager._has_token())
+
+    def test_should_reset_token(self):
+        self.manager.reset_token()
+
+        self.assertEqual(self.manager._token.access_token, '')
+        self.assertEqual(self.manager._token._expires_in, 0)
 
     @patch('requests.post')
     def test_should_be_able_to_request_a_new_token(self, post):
@@ -57,18 +63,6 @@ class TestSimpleTokenManager(TestCase):
         self.manager._get_token_data()
 
         _request_token.assert_called_once()
-
-    @patch('alf.managers.TokenManager._request_token')
-    def test_update_token_should_set_a_fallback_token_in_case_of_token_retrieve_error(self, _request_token):
-        _request_token.side_effect = TokenError('Message', Mock())
-        self.manager._token = Token('access_token', expires_in=100)
-
-        self.manager._update_token()
-
-        _request_token.assert_called_once()
-
-        self.assertEqual(self.manager._token.access_token, '')
-        self.assertEqual(self.manager._token._expires_in, 0)
 
     @patch('alf.managers.TokenManager._request_token')
     def test_update_token_should_set_a_token_with_data_retrieved(self, _request_token):

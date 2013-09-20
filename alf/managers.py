@@ -25,13 +25,13 @@ class TokenManager(object):
         token_data = self._request_token()
         return token_data
 
+    def reset_token(self):
+        self._token = Token()
+
     def _update_token(self):
-        try:
-            token_data = self._get_token_data()
-            self._token = Token(token_data.get('access_token', ''),
-                                token_data.get('expires_in', 0))
-        except TokenError:
-            self._token = Token()
+        token_data = self._get_token_data()
+        self._token = Token(token_data.get('access_token', ''),
+                            token_data.get('expires_in', 0))
 
     def _request_token(self):
         response = requests.post(
