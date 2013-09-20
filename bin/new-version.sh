@@ -9,7 +9,7 @@ read version
 
 sed -i '' -E "s/version='.+'/version='$version'/" setup.py
 
-git ci $txt -m "Bump to $version"
+git ci setup.py -m "Bump to $version"
 git tag $version
 git push
 git push --tags
