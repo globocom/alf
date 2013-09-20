@@ -12,13 +12,28 @@ class TokenManager(object):
 
         self._token = Token()
 
-    def has_token(self):
+    def _has_token(self):
         return self._token.is_valid()
 
     def get_token(self):
+        if not self._has_token():
+            self._update_token()
+
         return self._token.access_token
 
-    def request_token(self):
+    def _get_token_data(self):
+        token_data = self._request_token()
+        return token_data
+
+    def _update_token(self):
+        try:
+            token_data = self._get_token_data()
+            self._token = Token(token_data.get('access_token', ''),
+                                token_data.get('expires_in', 0))
+        except TokenError:
+            self._token = Token()
+
+    def _request_token(self):
         response = requests.post(
             self._token_endpoint,
             data={'grant_type': 'client_credentials'},
@@ -27,7 +42,4 @@ class TokenManager(object):
         if not response.ok:
             raise TokenError('Failed to request token', response)
 
-        token_data = response.json()
-
-        self._token.expires_in = token_data.get('expires_in', 0)
-        self._token.access_token = token_data.get('access_token', '')
+        return response.json()
