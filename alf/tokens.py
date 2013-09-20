@@ -12,14 +12,10 @@ class TokenError(Exception):
 class Token(object):
 
     def __init__(self, access_token='', expires_in=0):
-        self._access_token = access_token
+        self.access_token = access_token
         self._expires_in = expires_in
 
         self._expires_on = datetime.now() + timedelta(seconds=self._expires_in)
-
-    @property
-    def access_token(self):
-        return self._access_token
 
     def is_valid(self):
         return self._expires_on >= datetime.now()

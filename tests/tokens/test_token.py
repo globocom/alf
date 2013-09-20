@@ -8,10 +8,6 @@ class TestToken(TestCase):
 
     def test_should_have_an_access_token(self):
         token = Token(access_token='access_token')
-        self.assertEqual(token._access_token, 'access_token')
-
-    def test_access_token_property(self):
-        token = Token(access_token='access_token')
         self.assertEqual(token.access_token, 'access_token')
 
     def test_should_know_when_it_has_expired(self):
