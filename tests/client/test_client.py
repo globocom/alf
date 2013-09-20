@@ -15,36 +15,20 @@ class TestClient(TestCase):
     def test_Client_should_have_a_variable_with_a_token_manager_class(self):
         self.assertEquals(Client.token_manager_class, TokenManager)
 
-    #@patch('alf.client.TokenManager')
-    #def test_should_request_a_token_when_there_is_none(self, Manager):
-        #manager = self._fake_manager(Manager, has_token=False, access_token='new_token')
+    def test_token_manager_object_should_be_an_instance_of_token_manager_class(self):
+        client = Client(token_endpoint=self.end_point, client_id='client-id', client_secret='client_secret')
 
-        #self.assertRequestsResource(Manager, 'new_token', 200)
-        #self.assertTrue(manager.request_token.called)
+        self.assertTrue(isinstance(client._token_manager, client.token_manager_class))
 
     @patch('alf.client.TokenManager')
     @patch('requests.Session.request')
-    def test_should_refresh_token_when_the_request_fails(self, request, Manager):
-        request.return_value = Mock(status_code=401)
-        self._fake_manager(
-            Manager, has_token=True, access_token=['old', 'new'])
-
-        self._request(Manager)
-
-        self.assertResourceWasRequested(
-            request.call_args_list[0], access_token='old')
-        self.assertResourceWasRequested(
-            request.call_args_list[1], access_token='new')
-
-    @patch('alf.client.TokenManager')
-    @patch('requests.Session.request')
-    def test_should_not_retry_a_bad_request_if_the_token_was_refreshed(self, request, Manager):
+    def test_should_retry_a_bad_request_once(self, request, Manager):
         request.return_value = Mock(status_code=401)
         self._fake_manager(Manager, has_token=False)
 
         self._request(Manager)
 
-        self.assertEqual(request.call_count, 1)
+        self.assertEqual(request.call_count, 2)
 
     @patch('requests.post')
     @patch('requests.Session.request')
@@ -59,7 +43,24 @@ class TestClient(TestCase):
 
         response = client.request('GET', self.resource_url)
 
-        self.assertFalse(request.called)
+        self.assertEqual(response.status_code, 500)
+
+    @patch('alf.client.TokenManager.reset_token')
+    @patch('requests.post')
+    @patch('requests.Session.request')
+    def test_should_reset_token_when_token_fails(self, request, post, reset_token):
+        post.return_value = Mock(status_code=500, ok=False)
+
+        client = Client(
+            token_endpoint=self.end_point,
+            client_id='client_id',
+            client_secret='client_secret'
+        )
+
+        response = client.request('GET', self.resource_url)
+
+        reset_token.assert_called_once()
+
         self.assertEqual(response.status_code, 500)
 
     @patch('requests.Session.request')
@@ -97,7 +98,7 @@ class TestClient(TestCase):
 
         manager = Mock()
         manager._has_token.return_value = has_token
-        manager.get_token = access_token.pop
+        manager.get_token.return_value = access_token[0]
         manager.request_token.return_value = Mock(
             status_code=status_code, ok=(status_code == 200))
         Manager.return_value = manager
