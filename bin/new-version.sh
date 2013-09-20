@@ -7,7 +7,7 @@ read version
 
 [[ -z $version ]] && echo 'Empty version, exiting...' && exit 1
 
-sed -i '' -E "s/version='.+'/version='0.2'/" setup.py
+sed -i '' -E "s/version='.+'/version='$version'/" setup.py
 
 git ci $txt -m "Bump to $version"
 git tag $version
