@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from unittest import TestCase
 
 from alf.managers import Token
