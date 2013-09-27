@@ -66,7 +66,7 @@ class TestClient(TestCase):
     @patch('alf.client.TokenManager._has_token')
     @patch('alf.client.TokenManager.reset_token')
     @patch('requests.Session.request')
-    def test_should_reset_token_when_get_an_unauthorized_error(self, request, reset_token, _has_token):
+    def test_should_reset_token_when_gets_an_unauthorized_error(self, request, reset_token, _has_token):
         request.return_value = Mock(status_code=401)
         _has_token.return_value = True
 
