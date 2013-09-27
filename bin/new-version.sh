@@ -14,5 +14,5 @@ git tag $version
 git push
 git push --tags
 
-echo "Commits between $version e $current:"
+echo "Commits between $version and $current:"
 git log $version...$current --format='%Cgreen%h %Cred%cr %Creset%s %Cblue%cn%Cgreen%d'
