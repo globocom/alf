@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='alf',
-    version='0.3',
+    version='0.4',
     description="OAuth Client",
     long_description='OAuth Client based on requests.Session with seamless support for Client Credentials Flow',
     keywords='oauth client client_credentials requests',
