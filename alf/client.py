@@ -37,6 +37,7 @@ class Client(requests.Session):
             if response.status_code != BAD_TOKEN:
                 return response
 
+            self._token_manager.reset_token()
             return self._request(*args, **kwargs)
         except TokenError, error:
             self._token_manager.reset_token()
