@@ -59,9 +59,28 @@ class TestClient(TestCase):
 
         response = client.request('GET', self.resource_url)
 
-        reset_token.assert_called_once()
+        self.assertTrue(reset_token.called)
 
         self.assertEqual(response.status_code, 500)
+
+    @patch('alf.client.TokenManager._has_token')
+    @patch('alf.client.TokenManager.reset_token')
+    @patch('requests.Session.request')
+    def test_should_reset_token_when_get_an_unauthorized_error(self, request, reset_token, _has_token):
+        request.return_value = Mock(status_code=401)
+        _has_token.return_value = True
+
+        client = Client(
+            token_endpoint=self.end_point,
+            client_id='client_id',
+            client_secret='client_secret'
+        )
+
+        response = client.request('GET', self.resource_url)
+
+        self.assertTrue(reset_token.called)
+
+        self.assertEqual(response.status_code, 401)
 
     @patch('requests.Session.request')
     def assertRequestsResource(self, Manager, access_token, status_code, request):
