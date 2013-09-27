@@ -62,7 +62,7 @@ class TestTokenManager(TestCase):
     def test_get_token_data_should_obtain_new_token(self, _request_token):
         self.manager._get_token_data()
 
-        _request_token.assert_called_once()
+        self.assertTrue(_request_token.called)
 
     @patch('alf.managers.TokenManager._request_token')
     def test_update_token_should_set_a_token_with_data_retrieved(self, _request_token):
@@ -71,7 +71,7 @@ class TestTokenManager(TestCase):
 
         self.manager._update_token()
 
-        _request_token.assert_called_once()
+        self.assertTrue(_request_token.called)
 
         self.assertEqual(self.manager._token.access_token, 'new_access_token')
         self.assertEqual(self.manager._token._expires_in, 10)
@@ -87,4 +87,4 @@ class TestTokenManager(TestCase):
 
         self.manager.get_token()
 
-        _update_token.assert_called_once()
+        self.assertTrue(_update_token.called)
