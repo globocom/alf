@@ -18,4 +18,4 @@ class Token(object):
         self._expires_on = datetime.now() + timedelta(seconds=self._expires_in)
 
     def is_valid(self):
-        return self._expires_on >= datetime.now()
+        return self._expires_on > datetime.now()
