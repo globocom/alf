@@ -76,5 +76,8 @@ the real request won't happen.
 Related projects
 ----------------
 
-`djalf <https://github.com/viniciuschagas/djalf>`_: extended client that uses
-Django's cache backend to share tokens between server instances.
+`djalf <https://github.com/viniciuschagas/djalf>`_
+''''''''''''''''''''''''''''''''''''''''''''''''''
+
+Extended client that uses Django's cache backend to share tokens between
+server instances.
