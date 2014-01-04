@@ -6,7 +6,7 @@ setup(
     name='alf',
     version='0.4',
     description="OAuth Client",
-    long_description='OAuth Client based on requests.Session with seamless support for Client Credentials Flow',
+    long_description=open('README.rst').read(),
     keywords='oauth client client_credentials requests',
     author=u'Globo.com',
     author_email='timecore@corp.globo.com',
