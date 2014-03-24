@@ -12,7 +12,12 @@ setup(
     author_email='timecore@corp.globo.com',
     url='https://github.com/globocom/alf',
     license='Proprietary',
-    classifiers=['Intended Audience :: Developers'],
+    classifiers=[
+        'Intended Audience :: Developers',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
+        ],
     packages=find_packages(
         exclude=(
             'tests',
