@@ -39,6 +39,6 @@ class Client(requests.Session):
 
             self._token_manager.reset_token()
             return self._request(*args, **kwargs)
-        except TokenError, error:
+        except TokenError as error:
             self._token_manager.reset_token()
             return error.response
