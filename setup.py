@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='alf',
-    version='0.4',
+    version='0.4.1',
     description="OAuth Client",
     long_description=open('README.rst').read(),
     keywords='oauth client client_credentials requests',
