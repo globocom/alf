@@ -11,9 +11,10 @@ setup(
     author=u'Globo.com',
     author_email='timecore@corp.globo.com',
     url='https://github.com/globocom/alf',
-    license='Proprietary',
+    license='MIT',
     classifiers=[
         'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
