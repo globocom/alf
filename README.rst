@@ -86,4 +86,4 @@ server instances.
 `tornado-alf <https://github.com/globocom/tornado-alf>`_
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
-A port of `alf` client using tornado's `AsyncHTTPClient`.
+A port of the `alf` client using tornado's `AsyncHTTPClient`.
