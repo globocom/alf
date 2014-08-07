@@ -76,18 +76,14 @@ the real request won't happen.
 Related projects
 ----------------
 
-djalf
-'''''
-
 `djalf <https://github.com/viniciuschagas/djalf>`_
+''''''''''''''''''''''''''''''''''''''''''''''''''
 
 An extended client that uses Django's cache backend to share tokens between
 server instances.
 
 
-tornado-alf
-'''''''''''
-
 `tornado-alf <https://github.com/globocom/tornado-alf>`_
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 A port of `alf` client using tornado's `AsyncHTTPClient`.
