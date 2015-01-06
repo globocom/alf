@@ -4,7 +4,7 @@ alf
 Python OAuth 2 Client
 ---------------------
 
-`alf` is a OAuth 2 Client based on `requests.Session
+`alf` is an OAuth 2 Client based on `requests.Session
 <http://docs.python-requests.org/en/latest/user/advanced/#session-objects>`_
 with seamless support for the `Client Credentials Flow
 <http://tools.ietf.org/html/draft-ietf-oauth-v2-31#section-1.3.4>`_.
@@ -43,8 +43,8 @@ object.
     alf.delete(resource_uri)
 
 
-How it works?
--------------
+How does it work?
+-----------------
 
 Before any request the client tries to retrive a token on the endpoint,
 expecting a JSON response with the ``access_token`` and ``expires_in`` keys.
