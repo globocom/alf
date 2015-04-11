@@ -4,7 +4,7 @@ from mock import patch, Mock
 from unittest import TestCase
 
 from alf.managers import TokenManager, Token, TokenError
-
+from alf.tokens import TokenStorage, TokenDefaultStorage
 
 class TestTokenManager(TestCase):
 
@@ -21,24 +21,25 @@ class TestTokenManager(TestCase):
         self.assertFalse(self.manager._has_token())
 
     def test_should_detect_expired_token(self):
-        self.manager._token = Token('', expires_in=0)
+        self.manager._token = Token('', expires_on=Token.calc_expires_on(0))
         self.assertFalse(self.manager._has_token())
 
     def test_should_respect_valid_token(self):
-        self.manager._token = Token('', expires_in=10)
+        self.manager._token = Token('', expires_on=Token.calc_expires_on(10))
         self.assertTrue(self.manager._has_token())
 
     def test_should_reset_token(self):
         self.manager.reset_token()
 
         self.assertEqual(self.manager._token.access_token, '')
-        self.assertEqual(self.manager._token._expires_in, 0)
+        self.assertLess(self.manager._token.expires_on,
+                        Token.calc_expires_on(0))
 
     @patch('requests.post')
     def test_should_be_able_to_request_a_new_token(self, post):
         post.return_value.json.return_value = {
             'access_token': 'accesstoken',
-            'expires_in': 10,
+            'expires_on': Token.calc_expires_on(10),
         }
 
         self.manager._request_token()
@@ -60,24 +61,48 @@ class TestTokenManager(TestCase):
 
     @patch('alf.managers.TokenManager._request_token')
     def test_get_token_data_should_obtain_new_token(self, _request_token):
+        self.manager.reset_token()
+
         self.manager._get_token_data()
 
         self.assertTrue(_request_token.called)
 
     @patch('alf.managers.TokenManager._request_token')
     def test_update_token_should_set_a_token_with_data_retrieved(self, _request_token):
-        _request_token.return_value = {'access_token': 'new_access_token', 'expires_in': 10}
-        self.manager._token = Token('access_token', expires_in=100)
+        self.manager.reset_token()
+        expires = 100
+        _request_token.return_value = {'access_token': 'new_access_token',
+                                       'expires_in': expires}
+
+        self.manager._token = Token('access_token',
+                                    expires_on=0)
 
         self.manager._update_token()
 
         self.assertTrue(_request_token.called)
 
         self.assertEqual(self.manager._token.access_token, 'new_access_token')
-        self.assertEqual(self.manager._token._expires_in, 10)
+        self.assertLess(self.manager._token.expires_on, Token.calc_expires_on(expires))
+
+    @patch('alf.managers.TokenManager._request_token')
+    def test_update_token_should_set_a_token_with_data_retrieved_from_storage(self, _request_token):
+        expires = Token.calc_expires_on(100)
+        _request_token.return_value = dict()
+
+        self.manager._token = Token('new_access_token',
+                                    expires_on=expires)
+
+        self.manager._token_storage(self.manager._token)
+
+        self.manager._update_token()
+
+        self.assertFalse(_request_token.called)
+
+        self.assertEqual(self.manager._token.access_token, 'new_access_token')
+        self.assertEqual(self.manager._token.expires_on, expires)
 
     def test_should_return_token_value(self):
-        self.manager._token = Token('access_token', expires_in=10)
+        self.manager._token = Token('access_token', expires_on=Token.calc_expires_on(10))
         self.assertEqual(self.manager.get_token(), 'access_token')
 
     @patch('alf.managers.TokenManager._update_token')

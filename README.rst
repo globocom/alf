@@ -14,7 +14,12 @@ Features
 
 * Automatic token retrieving and renewing
 * Token expiration control
+* Automatic token storage
 * Automatic retry on status 401 (UNAUTHORIZED)
+
+How it works
+--------------
+![Image of Workflow](https://github.com/globocom/alf/blob/master/assets/workflow.png)
 
 Usage
 -----
@@ -31,6 +36,36 @@ object.
         token_endpoint='http://example.com/token',
         client_id='client-id',
         client_secret='secret')
+
+    resource_uri = 'http://example.com/resource'
+
+    alf.put(
+        resource_uri, data='{"name": "alf"}',
+        headers={'Content-Type': 'application/json'})
+
+    alf.get(resource_uri)
+
+    alf.delete(resource_uri)
+
+Using your custom token storage
+-------------------------------
+
+Now passing an object with get and set attributes you can store or retrieve a token.
+
+This object can be a Redis, Memcache or your custom object.
+
+.. code-block:: python
+
+    from alf.client import Client
+    from redis import StrictRedis
+
+    redis = StrictRedis(host='localhost', port=6379, db=0)
+
+    alf = Client(
+        token_endpoint='http://example.com/token',
+        client_id='client-id',
+        client_secret='secret',
+        token_storage=redis)
 
     resource_uri = 'http://example.com/resource'
 
