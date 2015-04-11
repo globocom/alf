@@ -17,10 +17,6 @@ Features
 * Automatic token storage
 * Automatic retry on status 401 (UNAUTHORIZED)
 
-How it works
---------------
-.. image:: assets/workflow.png
-
 Usage
 -----
 
@@ -84,8 +80,8 @@ How does it work?
 Before any request the client tries to retrive a token on the endpoint,
 expecting a JSON response with the ``access_token`` and ``expires_in`` keys.
 
-The client keeps the token until it is expired, according to the ``expires_in``
-value.
+The client keeps the token until it is expired, and according to the ``expires_in``
+value calculates a ``expires_on`` value to store and validate token from multiple clients.
 
 After getting the token, the request is issued with a `Bearer authorization
 header <http://tools.ietf.org/html/draft-ietf-oauth-v2-31#section-7.1>`_:
@@ -100,6 +96,10 @@ If the request fails with a 401 (UNAUTHORIZED) status, a new token is retrieved
 from the endpoint and the request is retried. This happens only once, if it
 fails again the error response is returned.
 
+Workflow
+--------
+
+.. image:: assets/workflow.png
 
 Troubleshooting
 ---------------
