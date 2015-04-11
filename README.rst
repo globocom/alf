@@ -19,7 +19,7 @@ Features
 
 How it works
 --------------
-![Image of Workflow](https://github.com/globocom/alf/blob/master/assets/workflow.png)
+.. image:: assets/workflow.png
 
 Usage
 -----
