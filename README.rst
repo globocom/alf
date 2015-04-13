@@ -1,6 +1,9 @@
 alf
 ===
 
+.. image:: https://travis-ci.org/globocom/alf.svg?branch=master
+    :target: https://travis-ci.org/globocom/alf
+    
 Python OAuth 2 Client
 ---------------------
 
