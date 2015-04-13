@@ -3,7 +3,7 @@ alf
 
 .. image:: https://travis-ci.org/globocom/alf.svg?branch=master
     :target: https://travis-ci.org/globocom/alf
-    
+
 Python OAuth 2 Client
 ---------------------
 
@@ -102,7 +102,7 @@ fails again the error response is returned.
 Workflow
 --------
 
-.. image:: assets/workflow.png
+.. image:: https://raw.githubusercontent.com/globocom/alf/master/assets/workflow.png
 
 Troubleshooting
 ---------------
