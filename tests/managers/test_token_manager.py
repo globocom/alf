@@ -5,6 +5,8 @@ from unittest import TestCase
 
 from alf.managers import TokenManager, Token, TokenError
 from alf.tokens import TokenStorage, TokenDefaultStorage
+from freezegun import freeze_time
+
 
 class TestTokenManager(TestCase):
 
@@ -28,12 +30,13 @@ class TestTokenManager(TestCase):
         self.manager._token = Token('', expires_on=Token.calc_expires_on(10))
         self.assertTrue(self.manager._has_token())
 
+    @freeze_time("2015-01-01 10:00:00.117153")
     def test_should_reset_token(self):
         self.manager.reset_token()
 
         self.assertEqual(self.manager._token.access_token, '')
-        self.assertLess(self.manager._token.expires_on,
-                        Token.calc_expires_on(0))
+        self.assertEqual(self.manager._token.expires_on,
+                         Token.calc_expires_on(0))
 
     @patch('requests.post')
     def test_should_be_able_to_request_a_new_token(self, post):
@@ -68,6 +71,7 @@ class TestTokenManager(TestCase):
         self.assertTrue(_request_token.called)
 
     @patch('alf.managers.TokenManager._request_token')
+    @freeze_time("2015-01-01 10:00:00.117153")
     def test_update_token_should_set_a_token_with_data_retrieved(self, _request_token):
         self.manager.reset_token()
         expires = 100
@@ -82,7 +86,7 @@ class TestTokenManager(TestCase):
         self.assertTrue(_request_token.called)
 
         self.assertEqual(self.manager._token.access_token, 'new_access_token')
-        self.assertLess(self.manager._token.expires_on, Token.calc_expires_on(expires))
+        self.assertEqual(self.manager._token.expires_on, Token.calc_expires_on(expires))
 
     @patch('alf.managers.TokenManager._request_token')
     def test_update_token_should_set_a_token_with_data_retrieved_from_storage(self, _request_token):

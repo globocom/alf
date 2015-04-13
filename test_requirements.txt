@@ -5,3 +5,4 @@ rednose
 mock
 redis
 python-memcached
+freezegun

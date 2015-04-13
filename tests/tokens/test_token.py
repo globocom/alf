@@ -6,15 +6,18 @@ import unittest
 from alf.managers import Token
 from alf.tokens import TokenStorage, TokenDefaultStorage, TOKEN_KEY, TOKEN_EXPIRES
 from datetime import datetime, timedelta
+from freezegun import freeze_time
+
 
 class TestToken(unittest.TestCase):
 
     def setUp(self):
         self.storage_obj = None
 
+    @freeze_time("2015-01-01 10:00:00.117153")
     def test_expires_on_works(self):
         expires = Token.calc_expires_on(10)
-        self.assertGreater(datetime.now() + timedelta(seconds=10), expires)
+        self.assertEqual(datetime.now() + timedelta(seconds=10), expires)
 
     def test_should_have_an_access_token(self):
         token = Token(access_token='access_token')
@@ -52,6 +55,22 @@ class TestTokenStorage(unittest.TestCase):
         expires = str(token.expires_on)
         token_storage = TokenStorage(self.storage_obj)
         token_storage(token)
+        token_requested = token_storage.request_token()
+        self.assertEqual(len(token_requested), 2)
+        self.assertEqual(token_requested.get('access_token'), 'access_token')
+        self.assertEqual(self.storage_obj.get('expires_on'), expires, self.storage_obj)
+
+    def test_storage_should_add_just_once_same_value(self):
+        expires_datetime = Token.calc_expires_on(10)
+        token = Token(access_token='access_token',
+                      expires_on=expires_datetime)
+        token2 = Token(access_token='new_access_token',
+                       expires_on=expires_datetime)
+        expires = str(token.expires_on)
+        token_storage = TokenStorage(self.storage_obj)
+        token_storage(token)
+        token_storage._access_token = 'new_access_token'
+        token_storage(token2)
         token_requested = token_storage.request_token()
         self.assertEqual(len(token_requested), 2)
         self.assertEqual(token_requested.get('access_token'), 'access_token')
