@@ -1,0 +1,8 @@
+-e .
+
+nose
+rednose
+mock
+redis
+python-memcached
+freezegun

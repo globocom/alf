@@ -14,6 +14,7 @@ Features
 
 * Automatic token retrieving and renewing
 * Token expiration control
+* Automatic token storage
 * Automatic retry on status 401 (UNAUTHORIZED)
 
 Usage
@@ -42,6 +43,36 @@ object.
 
     alf.delete(resource_uri)
 
+Using your custom token storage
+-------------------------------
+
+Now passing an object with get and set attributes you can store or retrieve a token.
+
+This object can be a Redis, Memcache or your custom object.
+
+.. code-block:: python
+
+    from alf.client import Client
+    from redis import StrictRedis
+
+    redis = StrictRedis(host='localhost', port=6379, db=0)
+
+    alf = Client(
+        token_endpoint='http://example.com/token',
+        client_id='client-id',
+        client_secret='secret',
+        token_storage=redis)
+
+    resource_uri = 'http://example.com/resource'
+
+    alf.put(
+        resource_uri, data='{"name": "alf"}',
+        headers={'Content-Type': 'application/json'})
+
+    alf.get(resource_uri)
+
+    alf.delete(resource_uri)
+
 
 How does it work?
 -----------------
@@ -49,8 +80,8 @@ How does it work?
 Before any request the client tries to retrive a token on the endpoint,
 expecting a JSON response with the ``access_token`` and ``expires_in`` keys.
 
-The client keeps the token until it is expired, according to the ``expires_in``
-value.
+The client keeps the token until it is expired, and according to the ``expires_in``
+value calculates a ``expires_on`` value to store and validate token from multiple clients.
 
 After getting the token, the request is issued with a `Bearer authorization
 header <http://tools.ietf.org/html/draft-ietf-oauth-v2-31#section-7.1>`_:
@@ -65,6 +96,10 @@ If the request fails with a 401 (UNAUTHORIZED) status, a new token is retrieved
 from the endpoint and the request is retried. This happens only once, if it
 fails again the error response is returned.
 
+Workflow
+--------
+
+.. image:: assets/workflow.png
 
 Troubleshooting
 ---------------
