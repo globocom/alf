@@ -81,7 +81,7 @@ Before any request the client tries to retrive a token on the endpoint,
 expecting a JSON response with the ``access_token`` and ``expires_in`` keys.
 
 The client keeps the token until it is expired, and according to the ``expires_in``
-value calculates a ``expires_on`` value to store and validate token from multiple clients.
+value calculates an ``expires_on`` value to store and validate token from multiple clients.
 
 After getting the token, the request is issued with a `Bearer authorization
 header <http://tools.ietf.org/html/draft-ietf-oauth-v2-31#section-7.1>`_:
