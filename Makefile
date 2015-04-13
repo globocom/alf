@@ -13,8 +13,7 @@ version:
 	@bin/new-version.sh
 
 upload_release: clean
-	@read -r -p "PyPI index-server: " PYPI_SERVER; \
-		python setup.py -q sdist upload -r "$$PYPI_SERVER"
+	@bin/upload.sh
 
 release: version upload_release
 
