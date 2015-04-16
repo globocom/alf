@@ -80,7 +80,7 @@ This object can be a Redis, Memcache or your custom object.
 How does it work?
 -----------------
 
-Before any request the client tries to retrive a token on the endpoint,
+Before any request the client tries to retrieve a token on the endpoint,
 expecting a JSON response with the ``access_token`` and ``expires_in`` keys.
 
 The client keeps the token until it is expired, and according to the ``expires_in``
