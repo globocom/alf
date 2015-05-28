@@ -104,7 +104,7 @@ fails again the error response is returned.
 Workflow
 --------
 
-.. image:: https://raw.githubusercontent.com/globocom/alf/master/assets/workflow.png
+.. image:: /assets/workflow.png?raw=true
 
 Troubleshooting
 ---------------
