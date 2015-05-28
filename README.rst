@@ -12,6 +12,8 @@ Python OAuth 2 Client
 with seamless support for the `Client Credentials Flow
 <http://tools.ietf.org/html/draft-ietf-oauth-v2-31#section-1.3.4>`_.
 
+.. image:: /assets/workflow.png?raw=true
+
 Features
 --------
 
