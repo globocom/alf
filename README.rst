@@ -86,8 +86,8 @@ Before the request, a token will be requested on the authentication endpoint
 and a JSON response with the ``access_token`` and ``expires_in`` keys will be
 expected.
 
-Multiple attempts will be issued after a 500 response from the endpoint if the
-``token_retries`` argument is used. Check `token-retrying`_ for more info.
+Multiple attempts will be issued after an error response from the endpoint if
+the ``token_retries`` argument is used. Check `token-retrying`_ for more info.
 
 ``alf`` keeps the token until it is expired according to the ``expires_in``
 value.
