@@ -53,6 +53,22 @@ class TokenManagerTestCase(BaseTokenManagerTestCase):
         self.manager._request_token()
 
         post.assert_called_with(self.END_POINT,
+                                timeout=None,
+                                data={'grant_type': 'client_credentials'},
+                                auth=(self.CLIENT_ID, self.CLIENT_SECRET))
+
+    @patch('requests.Session.post')
+    def test_should_have_token_request_timeout(self, post):
+        post.return_value.json.return_value = {}
+        manager = TokenManager(
+            self.END_POINT, self.CLIENT_ID, self.CLIENT_SECRET,
+            token_request_timeout=5
+        )
+
+        manager._request_token()
+
+        post.assert_called_with(self.END_POINT,
+                                timeout=5,
                                 data={'grant_type': 'client_credentials'},
                                 auth=(self.CLIENT_ID, self.CLIENT_SECRET))
 
