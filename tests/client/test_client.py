@@ -28,13 +28,17 @@ class TestClient(TestCase):
             token_endpoint=self.end_point,
             client_id='client_id',
             client_secret='client_secret',
-            token_request_timeout=10
+            token_request_params={
+                'timeout': 10
+            }
         )
 
         init.assert_called_with(client_id='client_id',
                                 client_secret='client_secret',
                                 token_endpoint=self.end_point,
-                                token_request_timeout=10,
+                                token_request_params={
+                                    'timeout': 10
+                                },
                                 token_retries=None,
                                 token_storage=None)
 

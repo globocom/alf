@@ -10,11 +10,11 @@ class TokenManager(object):
 
     def __init__(self, token_endpoint, client_id, client_secret,
                  token_storage=None, token_retries=None,
-                 token_request_timeout=None):
+                 token_request_params=None):
         self._token_endpoint = token_endpoint
         self._client_id = client_id
         self._client_secret = client_secret
-        self._token_request_timeout = token_request_timeout
+        self._token_request_params = token_request_params or {}
         self._token_storage = TokenStorage(token_storage)
 
         self._session = requests.Session()
@@ -59,7 +59,7 @@ class TokenManager(object):
             self._token_endpoint,
             data={'grant_type': 'client_credentials'},
             auth=(self._client_id, self._client_secret),
-            timeout=self._token_request_timeout)
+            timeout=self._token_request_params.get('timeout'))
 
         if not response.ok:
             raise TokenError('Failed to request token', response)

@@ -62,7 +62,9 @@ class TokenManagerTestCase(BaseTokenManagerTestCase):
         post.return_value.json.return_value = {}
         manager = TokenManager(
             self.END_POINT, self.CLIENT_ID, self.CLIENT_SECRET,
-            token_request_timeout=5
+            token_request_params={
+                'timeout': 5
+            }
         )
 
         manager._request_token()
