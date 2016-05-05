@@ -20,6 +20,28 @@ class TestClient(TestCase):
 
         self.assertTrue(isinstance(client._token_manager, client.token_manager_class))
 
+    @patch('alf.client.TokenManager.__init__')
+    def test_should_have_token_request_timeout(self, init):
+        init.return_value = None
+
+        client = Client(
+            token_endpoint=self.end_point,
+            client_id='client_id',
+            client_secret='client_secret',
+            token_request_params={
+                'timeout': 10
+            }
+        )
+
+        init.assert_called_with(client_id='client_id',
+                                client_secret='client_secret',
+                                token_endpoint=self.end_point,
+                                token_request_params={
+                                    'timeout': 10
+                                },
+                                token_retries=None,
+                                token_storage=None)
+
     @patch('alf.client.TokenManager')
     @patch('requests.Session.request')
     def test_should_retry_a_bad_request_once(self, request, Manager):
