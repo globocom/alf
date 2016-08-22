@@ -49,6 +49,17 @@ class TestTokenStorage(unittest.TestCase):
         expires = str(token.expires_on)
         self.assertEqual(self.storage_obj.get(TOKEN_EXPIRES), expires, self.storage_obj)
 
+    @freeze_time('2015-01-01 10:12:10.000000')
+    def test_storage_should_respect_datetime_format(self):
+        token = Token(access_token='access_token',
+                      expires_on=Token.calc_expires_on(10))
+        token_storage = TokenStorage(self.storage_obj)
+        token_storage(token)
+
+        expires = token_storage.request_token()[TOKEN_EXPIRES]
+        expected = datetime(2015, 1, 1, 10, 12, 20, microsecond=0)
+        self.assertEqual(expires, expected)
+
     def test_storage_should_add_retrieve_token(self):
         token = Token(access_token='access_token',
                       expires_on=Token.calc_expires_on(10))
@@ -99,4 +110,3 @@ class TestTokenMemcached(TestTokenStorage):
 
     def tearDown(self):
         self.storage_obj.delete('access_token')
-

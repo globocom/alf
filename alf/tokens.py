@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 TOKEN_KEY = 'access_token'
 TOKEN_VALUE = ''
 TOKEN_EXPIRES = 'expires_on'
+TOKEN_EXPIRES_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
 
 
 class TokenError(Exception):
@@ -39,14 +40,15 @@ class TokenStorage(object):
             self._access_token = token.access_token
             self._expires_on = token.expires_on
             self._storage.set(TOKEN_KEY, token.access_token)
-            self._storage.set(TOKEN_EXPIRES, str(token.expires_on))
+            self._storage.set(TOKEN_EXPIRES,
+                              token.expires_on.strftime(TOKEN_EXPIRES_FORMAT))
 
     def request_token(self):
         self._access_token = self._storage.get(TOKEN_KEY)
         expires_on = self._storage.get(TOKEN_EXPIRES)
         if expires_on:
             self._expires_on = datetime.strptime(expires_on,
-                                                 "%Y-%m-%d %H:%M:%S.%f")
+                                                 TOKEN_EXPIRES_FORMAT)
         else:
             self._expires_on = datetime.now()
         if self._access_token and self._expires_on > datetime.now():
@@ -65,4 +67,3 @@ class TokenDefaultStorage(object):
 
     def set(self, key=TOKEN_KEY, value=TOKEN_VALUE):
         self.storage[key] = value
-
