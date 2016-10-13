@@ -1,31 +1,36 @@
 # -*- coding: utf-8 -*-
 
-from mock import patch, Mock
 from unittest import TestCase
 
 from alf.managers import TokenManager, Token, TokenError
 from freezegun import freeze_time
+from mock import Mock, patch
 
 
-class TestTokenManager(TestCase):
+class BaseTokenManagerTestCase(TestCase):
+    END_POINT = 'http://endpoint/token'
+    CLIENT_ID = 'client_id'
+    CLIENT_SECRET = 'client_secret'
+
+
+class TokenManagerTestCase(BaseTokenManagerTestCase):
 
     def setUp(self):
-        self.end_point = 'http://endpoint/token'
-        self.client_id = 'client_id'
-        self.client_secret = 'client_secret'
-
-        self.manager = TokenManager(self.end_point,
-                                    self.client_id,
-                                    self.client_secret)
+        with patch('alf.managers.mount_retry_adapter') as self.mount_adapter:
+            self.manager = TokenManager(
+                self.END_POINT, self.CLIENT_ID, self.CLIENT_SECRET)
 
     def test_should_start_with_no_token(self):
         self.assertFalse(self.manager._has_token())
 
     def test_should_define_right_base_key_to_token_storage(self):
         self.assertEqual(
-            '{}_{}'.format(self.end_point, self.client_id),
+            '{}_{}'.format(self.END_POINT, self.CLIENT_ID),
             self.manager._token_storage._base_key
         )
+
+    def test_should_NOT_setup_token_retries_by_default(self):
+        self.assertEqual(self.mount_adapter.call_count, 0)
 
     def test_should_detect_expired_token(self):
         self.manager._token = Token('', expires_on=Token.calc_expires_on(0))
@@ -43,7 +48,7 @@ class TestTokenManager(TestCase):
         self.assertEqual(self.manager._token.expires_on,
                          Token.calc_expires_on(0))
 
-    @patch('requests.post')
+    @patch('requests.Session.post')
     def test_should_be_able_to_request_a_new_token(self, post):
         post.return_value.json.return_value = {
             'access_token': 'accesstoken',
@@ -52,11 +57,29 @@ class TestTokenManager(TestCase):
 
         self.manager._request_token()
 
-        post.assert_called_with(self.end_point,
+        post.assert_called_with(self.END_POINT,
+                                timeout=None,
                                 data={'grant_type': 'client_credentials'},
-                                auth=(self.client_id, self.client_secret))
+                                auth=(self.CLIENT_ID, self.CLIENT_SECRET))
 
-    @patch('requests.post')
+    @patch('requests.Session.post')
+    def test_should_have_token_request_timeout(self, post):
+        post.return_value.json.return_value = {}
+        manager = TokenManager(
+            self.END_POINT, self.CLIENT_ID, self.CLIENT_SECRET,
+            token_request_params={
+                'timeout': 5
+            }
+        )
+
+        manager._request_token()
+
+        post.assert_called_with(self.END_POINT,
+                                timeout=5,
+                                data={'grant_type': 'client_credentials'},
+                                auth=(self.CLIENT_ID, self.CLIENT_SECRET))
+
+    @patch('requests.Session.post')
     def test_should_raise_token_error_for_bad_token(self, post):
         post.return_value = Mock()
         post.return_value.ok = False
@@ -122,3 +145,15 @@ class TestTokenManager(TestCase):
         self.manager.get_token()
 
         self.assertTrue(_update_token.called)
+
+
+class TokenManagerWithRetriesTestCase(BaseTokenManagerTestCase):
+
+    def test_should_start_with_no_token(self):
+        with patch('alf.managers.mount_retry_adapter') as self.mount_adapter:
+            self.manager = TokenManager(
+                self.END_POINT, self.CLIENT_ID, self.CLIENT_SECRET,
+                token_retries=44)
+
+        self.mount_adapter.assert_called_once_with(
+            self.manager._session, 44)

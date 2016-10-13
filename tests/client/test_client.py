@@ -20,6 +20,28 @@ class TestClient(TestCase):
 
         self.assertTrue(isinstance(client._token_manager, client.token_manager_class))
 
+    @patch('alf.client.TokenManager.__init__')
+    def test_should_have_token_request_timeout(self, init):
+        init.return_value = None
+
+        client = Client(
+            token_endpoint=self.end_point,
+            client_id='client_id',
+            client_secret='client_secret',
+            token_request_params={
+                'timeout': 10
+            }
+        )
+
+        init.assert_called_with(client_id='client_id',
+                                client_secret='client_secret',
+                                token_endpoint=self.end_point,
+                                token_request_params={
+                                    'timeout': 10
+                                },
+                                token_retries=None,
+                                token_storage=None)
+
     @patch('alf.client.TokenManager')
     @patch('requests.Session.request')
     def test_should_retry_a_bad_request_once(self, request, Manager):
@@ -30,7 +52,7 @@ class TestClient(TestCase):
 
         self.assertEqual(request.call_count, 2)
 
-    @patch('requests.post')
+    @patch('requests.Session.post')
     @patch('requests.Session.request')
     def test_should_stop_the_request_when_token_fails(self, request, post):
         post.return_value = Mock(status_code=500, ok=False)
@@ -46,7 +68,7 @@ class TestClient(TestCase):
         self.assertEqual(response.status_code, 500)
 
     @patch('alf.client.TokenManager.reset_token')
-    @patch('requests.post')
+    @patch('requests.Session.post')
     @patch('requests.Session.request')
     def test_should_reset_token_when_token_fails(self, request, post, reset_token):
         post.return_value = Mock(status_code=500, ok=False)

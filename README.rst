@@ -1,6 +1,9 @@
 alf
 ===
 
+.. image:: https://travis-ci.org/globocom/alf.svg?branch=master
+    :target: https://travis-ci.org/globocom/alf
+
 Python OAuth 2 Client
 ---------------------
 
@@ -8,6 +11,8 @@ Python OAuth 2 Client
 <http://docs.python-requests.org/en/latest/user/advanced/#session-objects>`_
 with seamless support for the `Client Credentials Flow
 <http://tools.ietf.org/html/draft-ietf-oauth-v2-31#section-1.3.4>`_.
+
+.. image:: /assets/alf.jpeg?raw=true
 
 Features
 --------
@@ -77,29 +82,60 @@ This object can be a Redis, Memcache or your custom object.
 How does it work?
 -----------------
 
-Before any request the client tries to retrive a token on the endpoint,
-expecting a JSON response with the ``access_token`` and ``expires_in`` keys.
+Before the request, a token will be requested on the authentication endpoint
+and a JSON response with the ``access_token`` and ``expires_in`` keys will be
+expected.
 
-The client keeps the token until it is expired, and according to the ``expires_in``
-value calculates a ``expires_on`` value to store and validate token from multiple clients.
+Multiple attempts will be issued after an error response from the endpoint if
+the ``token_retries`` argument is used. Check `token-retrying`_ for more info.
 
-After getting the token, the request is issued with a `Bearer authorization
-header <http://tools.ietf.org/html/draft-ietf-oauth-v2-31#section-7.1>`_:
+``alf`` keeps the token until it is expired according to the ``expires_in``
+value.
+
+The token will be used on a `Bearer authorization
+header <http://tools.ietf.org/html/draft-ietf-oauth-v2-31#section-7.1>`_ for
+the original request.
 
 .. code-block::
 
     GET /resource/1 HTTP/1.1
     Host: example.com
-    Authorization: Bearer token
+    Authorization: Bearer token-12312
 
 If the request fails with a 401 (UNAUTHORIZED) status, a new token is retrieved
 from the endpoint and the request is retried. This happens only once, if it
 fails again the error response is returned.
 
+The token will be reused for every following request until it is expired.
+
+
+.. _token-retrying:
+
+Token Retrying
+--------------
+
+The client supports the `retry interface from urllib3 <https://urllib3.readthedocs.org/en/latest/helpers.html?highlight=retry#module-urllib3.util.retry>`_ to repeat attempts to
+retrieve the token from the endpoint.
+
+The following code will retry the token request 5 times when the response status
+is 500 and it will wait 0.3 seconds longer after each error (known as
+`backoff <https://en.wikipedia.org/wiki/Exponential_backoff>`_).
+
+.. code-block:: python
+
+    from requests.packages.urllib3.util import Retry
+    from alf.client import Client
+
+    alf = Client(
+        token_endpoint='http://example.com/token',
+        client_id='client-id',
+        client_secret='secret',
+        token_retry=Retry(total=5, status_forcelist=[500], backoff_factor=0.3))
+
 Workflow
 --------
 
-.. image:: assets/workflow.png
+.. image:: /assets/workflow.png?raw=true
 
 Troubleshooting
 ---------------

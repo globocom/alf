@@ -1,16 +1,26 @@
 # -*- coding: utf-8 -*-
+
 import requests
+
 from alf.tokens import Token, TokenError, TokenStorage
+from alf.adapters import mount_retry_adapter
 
 
 class TokenManager(object):
 
     def __init__(self, token_endpoint, client_id, client_secret,
-                 token_storage=None):
+                 token_storage=None, token_retries=None,
+                 token_request_params=None):
         self._token_endpoint = token_endpoint
         self._client_id = client_id
         self._client_secret = client_secret
+        self._token_request_params = token_request_params or {}
         self._token_storage = TokenStorage(token_storage, self._get_cache_key())
+        self._session = requests.Session()
+
+        if token_retries is not None:
+            self._token_retries = token_retries
+            mount_retry_adapter(self._session, token_retries)
 
         self._token = Token()
 
@@ -47,10 +57,11 @@ class TokenManager(object):
         self._token_storage(self._token)
 
     def _request_token(self):
-        response = requests.post(
+        response = self._session.post(
             self._token_endpoint,
             data={'grant_type': 'client_credentials'},
-            auth=(self._client_id, self._client_secret))
+            auth=(self._client_id, self._client_secret),
+            timeout=self._token_request_params.get('timeout'))
 
         if not response.ok:
             raise TokenError('Failed to request token', response)

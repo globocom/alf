@@ -19,12 +19,16 @@ class Client(requests.Session):
         self._client_id = kwargs.pop('client_id')
         self._client_secret = kwargs.pop('client_secret')
         self._token_storage = kwargs.pop('token_storage', None)
+        self._token_request_params = kwargs.pop('token_request_params', None)
 
+        _token_retries = kwargs.pop('token_retries', None)
         self._token_manager = self.token_manager_class(
             token_endpoint=self._token_endpoint,
             client_id=self._client_id,
             client_secret=self._client_secret,
-            token_storage=self._token_storage)
+            token_storage=self._token_storage,
+            token_request_params=self._token_request_params,
+            token_retries=_token_retries)
 
         super(Client, self).__init__(*args, **kwargs)
 
