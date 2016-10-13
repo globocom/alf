@@ -4,7 +4,6 @@ from mock import patch, Mock
 from unittest import TestCase
 
 from alf.managers import TokenManager, Token, TokenError
-from alf.tokens import TokenStorage, TokenDefaultStorage
 from freezegun import freeze_time
 
 
@@ -21,6 +20,12 @@ class TestTokenManager(TestCase):
 
     def test_should_start_with_no_token(self):
         self.assertFalse(self.manager._has_token())
+
+    def test_should_define_right_base_key_to_token_storage(self):
+        self.assertEqual(
+            '{}_{}'.format(self.end_point, self.client_id),
+            self.manager._token_storage._base_key
+        )
 
     def test_should_detect_expired_token(self):
         self.manager._token = Token('', expires_on=Token.calc_expires_on(0))
