@@ -2,10 +2,9 @@
 
 from unittest import TestCase
 
+from alf.managers import TokenManager, Token, TokenError
 from freezegun import freeze_time
 from mock import Mock, patch
-
-from alf.managers import Token, TokenError, TokenManager
 
 
 class BaseTokenManagerTestCase(TestCase):
@@ -23,6 +22,12 @@ class TokenManagerTestCase(BaseTokenManagerTestCase):
 
     def test_should_start_with_no_token(self):
         self.assertFalse(self.manager._has_token())
+
+    def test_should_define_right_base_key_to_token_storage(self):
+        self.assertEqual(
+            '{}_{}'.format(self.END_POINT, self.CLIENT_ID),
+            self.manager._token_storage._base_key
+        )
 
     def test_should_NOT_setup_token_retries_by_default(self):
         self.assertEqual(self.mount_adapter.call_count, 0)

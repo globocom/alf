@@ -15,8 +15,7 @@ class TokenManager(object):
         self._client_id = client_id
         self._client_secret = client_secret
         self._token_request_params = token_request_params or {}
-        self._token_storage = TokenStorage(token_storage)
-
+        self._token_storage = TokenStorage(token_storage, self._get_cache_key())
         self._session = requests.Session()
 
         if token_retries is not None:
@@ -24,6 +23,9 @@ class TokenManager(object):
             mount_retry_adapter(self._session, token_retries)
 
         self._token = Token()
+
+    def _get_cache_key(self):
+        return '{}_{}'.format(self._token_endpoint, self._client_id)
 
     def _has_token(self):
         return self._token.is_valid()

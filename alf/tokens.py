@@ -1,11 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
 
-TOKEN_KEY = 'access_token'
-TOKEN_VALUE = ''
-TOKEN_EXPIRES = 'expires_on'
-TOKEN_EXPIRES_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
-
 
 class TokenError(Exception):
 
@@ -29,41 +24,55 @@ class Token(object):
 
 
 class TokenStorage(object):
-    def __init__(self, custom_storage=None):
+
+    TOKEN_EXPIRES_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
+
+    def __init__(self, custom_storage=None, base_key=None):
+        self._access_token = ''
+        self._expires_on = ''
+        self._base_key = str(base_key)
         self._storage = custom_storage or TokenDefaultStorage()
-        self._access_token = TOKEN_VALUE
-        self._expires_on = TOKEN_VALUE
+
+    @property
+    def token_key(self):
+        return "{}_{}".format(self._base_key, 'access_token')
+
+    @property
+    def expires_key(self):
+        return "{}_{}".format(self._base_key, 'expires_on')
 
     def __call__(self, token):
         if token.access_token != self._access_token \
                 or token.expires_on != self._expires_on:
             self._access_token = token.access_token
             self._expires_on = token.expires_on
-            self._storage.set(TOKEN_KEY, token.access_token)
-            self._storage.set(TOKEN_EXPIRES,
-                              token.expires_on.strftime(TOKEN_EXPIRES_FORMAT))
+            self._storage.set(self.token_key, token.access_token)
+            self._storage.set(
+                self.expires_key,
+                token.expires_on.strftime(self.TOKEN_EXPIRES_FORMAT)
+            )
 
     def request_token(self):
-        self._access_token = self._storage.get(TOKEN_KEY)
-        expires_on = self._storage.get(TOKEN_EXPIRES)
+        self._access_token = self._storage.get(self.token_key)
+        expires_on = self._storage.get(self.expires_key)
         if expires_on:
             self._expires_on = datetime.strptime(expires_on,
-                                                 TOKEN_EXPIRES_FORMAT)
+                                                 self.TOKEN_EXPIRES_FORMAT)
         else:
             self._expires_on = datetime.now()
         if self._access_token and self._expires_on > datetime.now():
-            return {TOKEN_KEY: self._access_token,
-                    TOKEN_EXPIRES: self._expires_on}
+            return {'access_token': self._access_token,
+                    'expires_on': self._expires_on}
         return dict()
+
 
 class TokenDefaultStorage(object):
 
-    def __init__(self, key=TOKEN_KEY, value=TOKEN_VALUE):
+    def __init__(self):
         self.storage = dict()
-        self.set(key, value)
 
-    def get(self, key=TOKEN_KEY):
+    def get(self, key):
         return self.storage.get(key)
 
-    def set(self, key=TOKEN_KEY, value=TOKEN_VALUE):
+    def set(self, key, value):
         self.storage[key] = value
