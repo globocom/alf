@@ -24,6 +24,9 @@ class Token(object):
 
 
 class TokenStorage(object):
+
+    TOKEN_EXPIRES_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
+
     def __init__(self, custom_storage=None, base_key=None):
         self._access_token = ''
         self._expires_on = ''
@@ -44,14 +47,17 @@ class TokenStorage(object):
             self._access_token = token.access_token
             self._expires_on = token.expires_on
             self._storage.set(self.token_key, token.access_token)
-            self._storage.set(self.expires_key, str(token.expires_on))
+            self._storage.set(
+                self.expires_key,
+                token.expires_on.strftime(self.TOKEN_EXPIRES_FORMAT)
+            )
 
     def request_token(self):
         self._access_token = self._storage.get(self.token_key)
         expires_on = self._storage.get(self.expires_key)
         if expires_on:
             self._expires_on = datetime.strptime(expires_on,
-                                                 "%Y-%m-%d %H:%M:%S.%f")
+                                                 self.TOKEN_EXPIRES_FORMAT)
         else:
             self._expires_on = datetime.now()
         if self._access_token and self._expires_on > datetime.now():
